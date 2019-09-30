@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SWeapon.h"
+#include "SCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
@@ -8,6 +9,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "CoopGame.h"
+#include "TimerManager.h"
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeaponDrawing(
@@ -24,8 +26,19 @@ ASWeapon::ASWeapon()
 
 	MuzzleSocketName = "MuzzleSocket";
 	TracerTargetName = "Target";
+
+	BaseDamage = 20.f;
+	RateOfFire = 600;
+	ProjectilesToSpawn = 1000.f;
+	DecrementRate = 200.f;
+	CurrentProjectiles = ProjectilesToSpawn;
 }
 
+
+void ASWeapon::BeginPlay()
+{
+	TimeBetweenShots = 60 / RateOfFire;
+}
 
 void ASWeapon::Fire()
 
@@ -49,14 +62,21 @@ void ASWeapon::Fire()
 		QueryParams.bTraceComplex = true;
 		QueryParams.bReturnPhysicalMaterial = true;
 
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams))
+		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
 		{
 			//Only return is blocking hit
 			AActor* HitActor = Hit.GetActor();
-
 			
-			UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, MyOwner->GetInstigatorController(), this, DamageType);
+			float ActualDamage = BaseDamage;
+
 			EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+			if (SurfaceType == SURFACE_FLESHVULNERABLE)
+			{
+				ActualDamage *= 4.f;
+			}
+
+			UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, MyOwner->GetInstigatorController(), this, DamageType);
+			
 
 			UParticleSystem* SelectedEffect = nullptr;
 			switch (SurfaceType)
@@ -81,9 +101,55 @@ void ASWeapon::Fire()
 			DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Red, true, 2.f, 0, 1.f);
 		}
 		PlayFireEffects(TracerEndPoint);
+
+		LastFireTime = GetWorld()->TimeSeconds;
 	}
 	
 }
+
+
+void  ASWeapon::StartFire()
+{
+	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
+	
+	if (ProjectilesToSpawn >=0)
+	{
+		
+		GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASWeapon::Fire, TimeBetweenShots, true, FirstDelay);
+		
+	}
+	else
+	{
+		return;
+	}
+	
+	DecrementProjectiles();
+	
+
+}
+
+void ASWeapon::DecrementProjectiles()
+{
+	//float DeltaSpawn = DecrementRate * DeltaTime;
+	
+		if (ProjectilesToSpawn && ProjectilesToSpawn >= 0)
+		{
+			
+			ProjectilesToSpawn -= DecrementRate;
+			UE_LOG(LogTemp, Warning, TEXT("ProjectilesDecrementing: %f"), ProjectilesToSpawn);
+		}
+		else
+		{
+			return;
+			UE_LOG(LogTemp, Warning, TEXT("ProjectilesNotDecrementing"));
+		}
+	
+}
+void ASWeapon::StopFire()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
 
 void ASWeapon::PlayFireEffects(FVector TraceEnd)
 {

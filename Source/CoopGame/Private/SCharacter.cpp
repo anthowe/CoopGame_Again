@@ -2,6 +2,7 @@
 
 #include "Public/SCharacter.h"
 #include "Public/SWeapon.h"
+#include "SProjectile.h"
 #include "Components/InputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -27,6 +28,7 @@ ASCharacter::ASCharacter()
 	ZoomInterpSpeed = 20.f;
 
 	WeaponAttachSocketName = "WeaponSocket";
+	
 }
 
 // Called when the game starts or when spawned
@@ -80,11 +82,19 @@ void ASCharacter::EndZoom()
 	bWantsToZoom = false;
 }
 
-void ASCharacter::Fire()
+void ASCharacter::StartFire()
 {
 	if (CurrentWeapon)
 	{
-		CurrentWeapon->Fire();
+		CurrentWeapon->StartFire();
+	}
+}
+
+void ASCharacter::StopFire()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->StopFire();
 	}
 }
 
@@ -114,8 +124,14 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::Fire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
+
+	PlayerInputComponent->BindAction("Pickup", IE_Pressed, this, &ASCharacter::BeginPickup);
+	PlayerInputComponent->BindAction("Pickup", IE_Released, this, &ASCharacter::EndPickup);
+	PlayerInputComponent->BindAction("ShowInventory", IE_Pressed, this, &ASCharacter::ShowInventory);
 }
+
 
 FVector ASCharacter::GetPawnViewLocation() const
 {
@@ -124,4 +140,19 @@ FVector ASCharacter::GetPawnViewLocation() const
 		return CameraComp->GetComponentLocation();
 	}
 	return Super::GetPawnViewLocation();
+}
+
+void ASCharacter::BeginPickup()
+{
+
+}
+
+void ASCharacter::EndPickup()
+{
+
+}
+
+void ASCharacter::ShowInventory()
+{
+
 }

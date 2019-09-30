@@ -10,6 +10,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class ASWeapon;
 
+
 UCLASS()
 class COOPGAME_API ASCharacter : public ACharacter
 {
@@ -59,7 +60,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	FName WeaponAttachSocketName;
 
-	void Fire();
+	
 
 public:	
 	// Called every frame
@@ -69,4 +70,20 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual FVector GetPawnViewLocation() const override;
+
+protected:
+
+	void BeginPickup();
+
+	void EndPickup();
+
+	void ShowInventory();
+
+public:
+	bool bIsPickingUp = false;
+
+	void StartFire();
+
+	void StopFire();
+
 };

@@ -21,6 +21,8 @@ FAutoConsoleVariableRef CVARDebugWeaponDrawing(
 // Sets default values
 ASWeapon::ASWeapon()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
  	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
 
@@ -30,8 +32,8 @@ ASWeapon::ASWeapon()
 	BaseDamage = 20.f;
 	RateOfFire = 600;
 	ProjectilesToSpawn = 1000.f;
-	DecrementRate = 200.f;
-	CurrentProjectiles = ProjectilesToSpawn;
+	DecrementRate = 2.f;
+
 }
 
 
@@ -39,6 +41,7 @@ void ASWeapon::BeginPlay()
 {
 	TimeBetweenShots = 60 / RateOfFire;
 }
+
 
 void ASWeapon::Fire()
 
@@ -112,15 +115,11 @@ void  ASWeapon::StartFire()
 {
 	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
 	
-	if (ProjectilesToSpawn >=0)
+	if (ProjectilesToSpawn > 0)
 	{
 		
 		GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASWeapon::Fire, TimeBetweenShots, true, FirstDelay);
 		
-	}
-	else
-	{
-		return;
 	}
 	
 	DecrementProjectiles();
@@ -132,16 +131,22 @@ void ASWeapon::DecrementProjectiles()
 {
 	//float DeltaSpawn = DecrementRate * DeltaTime;
 	
-		if (ProjectilesToSpawn && ProjectilesToSpawn >= 0)
+		if (ProjectilesToSpawn && ProjectilesToSpawn > 0)
 		{
-			
+			//UE_LOG(LogTemp, Warning, TEXT("ProjectilesDecrementing: %f"), ProjectilesToSpawn);
 			ProjectilesToSpawn -= DecrementRate;
-			UE_LOG(LogTemp, Warning, TEXT("ProjectilesDecrementing: %f"), ProjectilesToSpawn);
+			
 		}
+		/*if (ProjectilesToSpawn && ProjectilesToSpawn <= 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ProjectilesNotDecrementing: %f"), ProjectilesToSpawn);
+			ProjectilesToSpawn += DecrementRate;
+		}
+		*/
 		else
 		{
 			return;
-			UE_LOG(LogTemp, Warning, TEXT("ProjectilesNotDecrementing"));
+			
 		}
 	
 }

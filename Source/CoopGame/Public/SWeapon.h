@@ -26,8 +26,9 @@ protected:
 
 	virtual void BeginPlay() override;
 
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "MeshComp")
-		USkeletalMeshComponent* MeshComp;
+	USkeletalMeshComponent* MeshComp;
 
 	
 
@@ -89,6 +90,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float CurrentProjectiles;
+
 
 	float DecrementRate;
 

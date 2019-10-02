@@ -88,10 +88,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float ProjectilesToSpawn;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float CurrentProjectiles;
 
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float DecrementRate;
 
 	void DecrementProjectiles();

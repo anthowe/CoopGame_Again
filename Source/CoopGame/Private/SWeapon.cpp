@@ -31,8 +31,8 @@ ASWeapon::ASWeapon()
 
 	BaseDamage = 20.f;
 	RateOfFire = 600;
-	ProjectilesToSpawn = 1000.f;
-	DecrementRate = 2.f;
+	ProjectilesToSpawn = 10;
+	DecrementRate = 10;
 
 }
 
@@ -115,40 +115,28 @@ void  ASWeapon::StartFire()
 {
 	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
 	
-	if (ProjectilesToSpawn > 0)
+	if (CurrentProjectiles >= 0)
 	{
-		
 		GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASWeapon::Fire, TimeBetweenShots, true, FirstDelay);
-		
 	}
-	
 	DecrementProjectiles();
 	
-
 }
 
 void ASWeapon::DecrementProjectiles()
 {
-	//float DeltaSpawn = DecrementRate * DeltaTime;
+	float DeltaProjectiles = ProjectilesToSpawn - CurrentProjectiles;
+	CurrentProjectiles = ProjectilesToSpawn;
+		if (CurrentProjectiles && CurrentProjectiles >= 0)
+		{
+		UE_LOG(LogTemp, Warning, TEXT("ProjectilesDecrementing: %f"), CurrentProjectiles);
+			CurrentProjectiles -= DecrementRate / RateOfFire;
+		}
 	
-		if (ProjectilesToSpawn && ProjectilesToSpawn > 0)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("ProjectilesDecrementing: %f"), ProjectilesToSpawn);
-			ProjectilesToSpawn -= DecrementRate;
-			
-		}
-		/*if (ProjectilesToSpawn && ProjectilesToSpawn <= 0)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("ProjectilesNotDecrementing: %f"), ProjectilesToSpawn);
-			ProjectilesToSpawn += DecrementRate;
-		}
-		*/
 		else
 		{
 			return;
-			
 		}
-	
 }
 void ASWeapon::StopFire()
 {

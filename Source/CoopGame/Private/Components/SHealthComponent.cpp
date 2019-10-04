@@ -2,6 +2,8 @@
 
 #include "SHealthComponent.h"
 #include "SCharacter.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/World.h"
 
 
 // Sets default values for this component's properties
@@ -31,9 +33,11 @@ void USHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, 
 		return;
 	}
 	Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
-
+	
 	UE_LOG(LogTemp, Warning, TEXT("HealthChanged: %s"), *FString::SanitizeFloat(Health));
-
+	FVector Location = DamagedActor->GetActorLocation();
+	FString HealthDelta = *FString::SanitizeFloat(Health);
+	DrawDebugString(GetWorld(), Location, HealthDelta, DamagedActor, FColor::Red, .1f, 0, 2.f);
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamagedActor);
 }
 

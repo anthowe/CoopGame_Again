@@ -76,6 +76,7 @@ protected:
 	// Derived from rate of fire
 	float TimeBetweenShots;
 
+
 public:	
 
 	

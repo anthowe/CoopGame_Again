@@ -34,6 +34,8 @@ ASWeapon::ASWeapon()
 	ProjectilesToSpawn = 10;
 	DecrementRate = 10;
 
+	SetReplicates(true);
+
 }
 
 
@@ -45,7 +47,15 @@ void ASWeapon::BeginPlay()
 
 void ASWeapon::Fire()
 
-{		//Trace from Actor Origin to hit in world space
+{		
+	
+	if (Role < ROLE_Authority)
+	{
+		ServerFire();
+	
+	}
+
+	//Trace from Actor Origin to hit in world space
 	AActor* MyOwner = GetOwner();
 	if (MyOwner)
 	{	
@@ -110,7 +120,15 @@ void ASWeapon::Fire()
 	
 }
 
+void ASWeapon::ServerFire_Implementation()
+{
+	Fire();
+}
 
+bool ASWeapon::ServerFire_Validate()
+{
+	return true;
+}
 void  ASWeapon::StartFire()
 {
 	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);

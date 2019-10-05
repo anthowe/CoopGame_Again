@@ -10,6 +10,7 @@ class USkeletalMeshComponent;
 class UDamageType;
 class UParticleSystem;
 class ASProjectile;
+class UCameraShake;
 
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
@@ -64,6 +65,9 @@ protected:
 	float BaseDamage;
 
 	virtual void Fire();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
